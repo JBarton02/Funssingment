@@ -1,9 +1,24 @@
 using System;
+using System.Collections.Generic;
 
 namespace Funssignment
 {
     class Program
 	{
+		static void Main(string[] args)
+		{
+			//Made each question into a different function for readability//
+			Console.WriteLine("\nQuestion 1: Hello World with a twist");
+			Question_1();
+			Console.WriteLine("\nQuestion 2: Fibonacci sequence");
+			Question_2();
+			Console.WriteLine("\nQuestion 3: Palindrome detector");
+			Question_3();
+			Console.WriteLine("\nQuestion 4: Mystery Number Game");
+			Question_4();
+			Console.WriteLine("\nQuestion 5: Simple Mastermind");
+			Question_5();
+		}
 		static void Question_1() //Standard Hello World that accepts an input//
 		{
 			Console.WriteLine("Please enter your name:");
@@ -90,17 +105,18 @@ namespace Funssignment
 				}
 				else if (user_guess_int > secret_num)
 				{
-					Console.WriteLine("Too high");
-					Console.WriteLine(guess_attempts + " guesses left.");
+					Console.WriteLine("\nToo high");
+					Console.WriteLine((guess_attempts - 1) + " guesses left.");
 				}
 				else if (user_guess_int < secret_num)
 				{
-					Console.WriteLine("Too low");
-					Console.WriteLine(guess_attempts + " guesses left.");
+					Console.WriteLine("\nToo low");
+					Console.WriteLine((guess_attempts - 1) + " guesses left.");
 				}
 				else
 				{
 					Console.WriteLine("Please input a number, no attempt used");
+					guess_attempts++;
 					continue;
 				}
 				guess_attempts--;
@@ -127,18 +143,87 @@ namespace Funssignment
 				Console.WriteLine("The mystery number is: " + mystery_num + ".");
 			}
 		}
-		static void Main(string[] args)
+		static int[] SecretNumberGenerator()
+  		{
+  			Random rand = new Random();
+  			List <int> digits = new List <int>();
+  			while (digits.Count < 4) 
+  			{
+  				int digit = rand.Next(0, 10);
+  				if (!digits.Contains(digit)) 
+  				{
+  					digits.Add(digit);
+  				}
+  			}
+  			return digits.ToArray();
+		}
+		static bool IsValidGuess(string guess)
+  		{
+  			if (guess.Length != 4 || !int.TryParse(guess, out _))
+  			{
+  				return false;
+  			}
+  			HashSet<char> uniqueDigits = new HashSet<char>(guess);
+  			return uniqueDigits.Count == 4;
+  		}
+  		static void CalculateHitsAndCloses(int[] secretNumber, string guess, ref int hits, ref int close)
+  		{
+  			hits = 0;
+  			close = 0;
+  			for (int i = 0; i < 4; i++) 
+  			{
+  				int guessedDigit = int.Parse(guess[i].ToString());
+
+  				if (guessedDigit == secretNumber[i]) 
+  				{
+  					hits++;
+  				}
+  				else if (Array.Exists(secretNumber, element => element == guessedDigit)) 
+  				{
+  					close++;	
+  				}
+  			}
+  		}
+		static void Question_5() //Mastermind//
 		{
-			//Made each question into a different function for readability//
-			Console.WriteLine("Question 1: Hello World with a twist");
-			Question_1();
-			Console.WriteLine("Question 2: Fibonacci sequence");
-			Question_2();
-			Console.WriteLine("Question 3: Palindrome detector");
-			Question_3();
-			Console.WriteLine("Question 4: Mystery Number Game");
-			Question_4();
-			Console.WriteLine("Question 5: Simple Mastermind");
+			int[] secretNumber = SecretNumberGenerator();
+
+  			int attempts = 10;
+  			bool guessedCorrectly = false;
+
+  			Console.WriteLine("Welcome to Mastermind: The Codebreaker!");
+  			Console.WriteLine("I generated a 4 digit code with no repeating digits");
+  			Console.WriteLine("You get 10 attempts");
+
+  			for (int i = 0; i < attempts; i++) 
+  			{
+  				Console.WriteLine($"\nAttempts {i + 1}: Enter your guess (reminder: no repeating digits)");
+  				string guess = Console.ReadLine();
+
+  				if (!IsValidGuess(guess)) 
+  				{
+  					Console.WriteLine("Invalid Input");
+  					i--;
+  					continue;
+  				}
+  				int hits = 0, close = 0;
+  				CalculateHitsAndCloses(secretNumber, guess, ref hits, ref close);
+  				if (hits == 4) 
+  				{
+  					guessedCorrectly = true;
+  					break;
+  				}
+  				Console.WriteLine($"Hits: {hits}, Close: {close}");
+  			}
+
+  			if (guessedCorrectly) 
+  			{
+  				Console.WriteLine("Congrats! You guessed my number!");
+  			}
+  			else 
+  			{
+  				Console.WriteLine("all attempts used. The correct number is: " + String.Join("", secretNumber));
+  			}
 		}
 	}
 }
